@@ -7,12 +7,12 @@ Replicante
 Créer le réseau et lancer les conteneurs:
 
 ```bash
-./launch.sh bash
+./launch.sh 
 ```
 
 Rentrer dans les conteneurs:
 
-`docker-exec -it node-1 /bin/bash`
+`docker-exec -it node-1 /bin/bash`   
 `docker-exec -it node-2 /bin/bash`
 
 
