@@ -12,8 +12,8 @@ Créer le réseau et lancer les conteneurs:
 
 Rentrer dans les conteneurs:
 
-`docker-exec -it node-1 /bin/bash`   
-`docker-exec -it node-2 /bin/bash`
+`docker exec -it node-1 /bin/bash`   
+`docker exec -it node-2 /bin/bash`
 
 
 #### Sondes 
@@ -47,3 +47,51 @@ Uuid: ff38aae1-1579-44f9-8e37-5aae68ebbfca
 State: Peer in Cluster (Connected)
 [root@96e1d98012d0 /]# 
 ```
+
+
+-------
+http://docs.gluster.org/en/latest/Administrator%20Guide/Setting%20Up%20Volumes/
+
+### Volume distribué
+
+> Dans un volume distribué, les fichiers sont répartis de manière aléatoire entre les briques du volume. 
+> Utilisez des volumes distribués lorsque vous avez besoin d'augmenter le stockage et que la redondance n'est pas importante ou est fournie par d'autres couches matérielles / logicielles.
+
+Monter un volume à partir d'un des deux conteneurs
+
+`gluster volume create volume-nodes node-1:/tmp/exp1 node-2:/tmp/exp2 force`
+
+Démarrer le volume, cette commande démarre le volume des deux cotés 
+
+```bash 
+$ gluster volume start volume-nodes
+  volume start: volume-nodes: success
+```
+
+Pour avoir les informations sur un volume
+
+```bash 
+$ gluster volume info
+ 
+  Volume Name: volume-nodes
+  Type: Distribute
+  Volume ID: 442c929b-71bf-4fd2-8e4c-fa288f4f859e
+  Status: Started
+  Snapshot Count: 0
+  Number of Bricks: 2
+  Transport-type: tcp
+  Bricks:
+  Brick1: node-1:/tmp/exp1
+  Brick2: node-2:/tmp/exp2
+  Options Reconfigured:
+  transport.address-family: inet
+  nfs.disable: on
+```
+
+Le mode distribué est le mode par défaut de GlusterFS. Les fichiers sont répartis sur les noeaud et il n'y a pas de redondance. On peut ajouter facilement des noeuds au cluster mais en cas de perte de l'un d'entre eux, les données qu'il contient seront perdues.
+
+### Volume répliqué
+
+### Volume strippé
+
+### Volume distribué-répliqué
