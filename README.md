@@ -23,12 +23,12 @@ En rentrant dans le conteneur on lance le démon GlusterFS, et on lui ajoute l'a
 ```
 [root@a59def5a9be4 /]# service glusterd start
 Redirecting to /bin/systemctl start glusterd.service
-[root@a59def5a9be4 /]# gluster peer probe 172.18.0.20
+[root@a59def5a9be4 /]# gluster peer probe 172.66.0.20
 peer probe: success. 
 [root@a59def5a9be4 /]# gluster peer status
 Number of Peers: 1
 
-Hostname: 172.18.0.20
+Hostname: 172.66.0.20
 Uuid: f86c12cc-905b-44fe-af5b-9c0018414ad2
 State: Peer in Cluster (Connected)
 ```
@@ -59,13 +59,13 @@ http://docs.gluster.org/en/latest/Administrator%20Guide/Setting%20Up%20Volumes/
 
 Monter un volume à partir d'un des deux conteneurs
 
-`gluster volume create volume-nodes node-1:/tmp/exp1 node-2:/tmp/exp2 force`
+`gluster volume create volume-distibuted node-1:/tmp/exp1 node-2:/tmp/exp2 force`
 
 Démarrer le volume, cette commande démarre le volume des deux cotés 
 
 ```bash 
-$ gluster volume start volume-nodes
-  volume start: volume-nodes: success
+$ gluster volume start volume-distibuted
+  volume start: volume-distibuted: success
 ```
 
 Pour avoir les informations sur un volume
@@ -73,7 +73,7 @@ Pour avoir les informations sur un volume
 ```bash 
 $ gluster volume info
  
-  Volume Name: volume-nodes
+  Volume Name: volume-distibuted
   Type: Distribute
   Volume ID: 442c929b-71bf-4fd2-8e4c-fa288f4f859e
   Status: Started
@@ -88,7 +88,7 @@ $ gluster volume info
   nfs.disable: on
 ```
 
-Le mode distribué est le mode par défaut de GlusterFS. Les fichiers sont répartis sur les noeaud et il n'y a pas de redondance. On peut ajouter facilement des noeuds au cluster mais en cas de perte de l'un d'entre eux, les données qu'il contient seront perdues.
+Le mode distribué est le mode par défaut de GlusterFS. Les fichiers sont répartis sur les noeud et il n'y a pas de redondance. On peut ajouter facilement des noeuds au cluster mais en cas de perte de l'un d'entre eux, les données qu'il contient seront perdues.
 
 ### Volume répliqué
 
