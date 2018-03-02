@@ -65,16 +65,16 @@ Monter un volume à partir d'un des deux conteneurs
 Démarrer le volume, cette commande démarre le volume des deux cotés 
 
 ```bash 
-$ gluster volume start volume-distibuted
+# gluster volume start volume-distributed
   volume start: volume-distibuted: success
 ```
 
 Pour avoir les informations sur un volume
 
 ```bash 
-$ gluster volume info
+# gluster volume info
  
-  Volume Name: volume-distibuted
+  Volume Name: volume-distributed
   Type: Distribute
   Volume ID: 442c929b-71bf-4fd2-8e4c-fa288f4f859e
   Status: Started
@@ -91,19 +91,63 @@ $ gluster volume info
 
 Le mode distribué est le mode par défaut de GlusterFS. Les fichiers sont répartis sur les noeud et il n'y a pas de redondance. On peut ajouter facilement des noeuds au cluster mais en cas de perte de l'un d'entre eux, les données qu'il contient seront perdues.
 
+#### Tester la distribution 
+
+
+- Dans le client 
+
+Créer le point de montage `mkdir /data`
+Monter le volume à partir du client avec `mount -t glusterfs node-1:volume-distributed /data`
+Création de fichiers 
+
+```
+echo "Bonjour monde" >  /data/test
+echo "Bonjour monde" >  /data/test2
+echo "Bonjour monde" >  /data/test3
+```
+
+Des fichiers `test`, `test2` et `test3` sont crées sur notre client et sont répartis sur les des deux noeuds du cluster sans répication.
+
+- Noeud 1 
+
+```
+cat /tmp/exp1/test
+"Bonjour monde"
+
+ls /tmp/exp1
+.glusterfs/ 
+test        
+test2   
+```
+
+- Noeud 2
+
+```
+ls /tmp/exp2
+.glusterfs/ 
+test3
+
+cat /tmp/exp2/test3
+"Bonjour monde"
+```
+
+Sur un volume répliqué le fichier apparaitra dans les deux noeuds.
+
 ### Volume répliqué
 
 > Les volumes répliqués créent des copies de fichiers sur plusieurs briques du volume. Cela permet d'améliorer la disponibilité et fiabilité du système.
 
+Création du volume répliqué avec deux noeuds :
+
 `gluster volume create volume-replica replica 2 transport tcp node-1:/tmp/exp1 node-2:/tmp/exp2 force`
 
-volume create: volume-replica: success: please start the volume to access data
-[root@a7ab5913603f /]# gluster volume start volume-replica
-volume start: volume-replica: success
+Démarrer le volume :
+
+`gluster volume start volume-replica`
 
  
 ```bash
-  $ gluster volume info
+# gluster volume info
   
   Volume Name: volume-replica
   Type: Replicate
@@ -127,10 +171,10 @@ volume start: volume-replica: success
 volume start: volume-replica: success
 ```
 
-Dans un des deux noeuds
+Dans un des deux noeuds, on peut vérifier que le volume est démarré avec :
 
 ```bash
-  $ gluster volume status
+# gluster volume status
 
   Status of volume: volume-replica
   Gluster process                             TCP Port  RDMA Port  Online  Pid
@@ -145,28 +189,31 @@ Dans un des deux noeuds
   There are no active volume tasks
 ``` 
 
-Dans le client gluster :
-Créer le point de montage `mkdir /data`
-Monter le volume à partir du client avec `mount -t glusterfs node-1:volume-replica /data`
 
 #### Tester la réplication 
 
-Conteneur node-1
 
-`mount -t glusterfs node-1:/test /mnt`
-`echo "Bonjour monde" >  /mnt/test`
+- Dans le client 
 
-Un fichier `test` est crée dans notre noeud node-1 avec la chaine de caractères "Bonjour monde".
+Créer le point de montage `mkdir /data`
+Monter le volume à partir du client avec `mount -t glusterfs node-1:volume-replica /data`
+Création d'un fichier `echo "Bonjour monde" >  /data/test`
 
-Conteneur node-2
+Un fichier `test` est crée sur notre client et dans les deux noeuds du cluster avec la chaine de caractères "Bonjour monde".
+Allons dans nos noeuds ou nous retrouvons notre fichier qui a bien été répliqué.
 
-Allons dans notre noeud Node-2 ou nous retrouvons notre fichier qui a bien été répliqué 
+- Noeud 1 
+
+```
+cat /tmp/exp1/test
+"Bonjour monde"
+```
+
+- Noeud 2
 
 ```
 cat /tmp/exp2/test
 "Bonjour monde"
 ```
 
-### Volume strippé
-
-### Volume distribué-répliqué
+Sur un volume distribué le fichier apparaitra aléatoirement sur un des deux noeuds.
