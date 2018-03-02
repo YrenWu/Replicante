@@ -32,6 +32,7 @@ Hostname: 172.66.0.20
 Uuid: f86c12cc-905b-44fe-af5b-9c0018414ad2
 State: Peer in Cluster (Connected)
 ```
+
 -------
 
 Dans l'autre conteneur pas besoin d'ajouter d'adresse IP, une fois le démon lancé il reconnait automatiquement son pair. On peut le constater avec la commande `gluster peer status` qui liste les noeuds du cluster.
@@ -92,6 +93,8 @@ Le mode distribué est le mode par défaut de GlusterFS. Les fichiers sont répa
 
 ### Volume répliqué
 
+> Les volumes répliqués créent des copies de fichiers sur plusieurs briques du volume. Cela permet d'améliorer la disponibilité et fiabilité du système.
+
 `gluster volume create volume-replica replica 2 transport tcp node-1:/tmp/exp1 node-2:/tmp/exp2 force`
 
 volume create: volume-replica: success: please start the volume to access data
@@ -142,12 +145,27 @@ Dans un des deux noeuds
   There are no active volume tasks
 ``` 
 
-Dans le client gluster 
-
+Dans le client gluster :
 Créer le point de montage `mkdir /data`
-
 Monter le volume à partir du client avec `mount -t glusterfs node-1:volume-replica /data`
 
+#### Tester la réplication 
+
+Conteneur node-1
+
+`mount -t glusterfs node-1:/test /mnt`
+`echo "Bonjour monde" >  /mnt/test`
+
+Un fichier `test` est crée dans notre noeud node-1 avec la chaine de caractères "Bonjour monde".
+
+Conteneur node-2
+
+Allons dans notre noeud Node-2 ou nous retrouvons notre fichier qui a bien été répliqué 
+
+```
+cat /tmp/exp2/test
+"Bonjour monde"
+```
 
 ### Volume strippé
 
