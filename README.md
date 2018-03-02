@@ -92,6 +92,63 @@ Le mode distribué est le mode par défaut de GlusterFS. Les fichiers sont répa
 
 ### Volume répliqué
 
+`gluster volume create volume-replica replica 2 transport tcp node-1:/tmp/exp1 node-2:/tmp/exp2 force`
+
+volume create: volume-replica: success: please start the volume to access data
+[root@a7ab5913603f /]# gluster volume start volume-replica
+volume start: volume-replica: success
+
+ 
+```bash
+  $ gluster volume info
+  
+  Volume Name: volume-replica
+  Type: Replicate
+  Volume ID: 436a9307-9e24-4123-945e-1a0e1c43ec83
+  Status: Started
+  Snapshot Count: 0
+  Number of Bricks: 1 x 2 = 2
+  Transport-type: tcp
+  Bricks:
+  Brick1: node-1:/tmp/exp1
+  Brick2: node-2:/tmp/exp2
+  Options Reconfigured:
+  transport.address-family: inet
+  nfs.disable: on
+```
+
+#### Démarrer le volume
+
+```
+[root@cfcd00872eed /]# gluster volume start volume-replica
+volume start: volume-replica: success
+```
+
+Dans un des deux noeuds
+
+```bash
+  $ gluster volume status
+
+  Status of volume: volume-replica
+  Gluster process                             TCP Port  RDMA Port  Online  Pid
+  ------------------------------------------------------------------------------
+  Brick node-1:/tmp/exp1                      49152     0          Y       496  
+  Brick node-2:/tmp/exp2                      49152     0          Y       394  
+  Self-heal Daemon on localhost               N/A       N/A        Y       517  
+  Self-heal Daemon on 172.66.0.20             N/A       N/A        Y       415  
+  
+  Task Status of Volume volume-replica
+  ------------------------------------------------------------------------------
+  There are no active volume tasks
+``` 
+
+Dans le client gluster 
+
+Créer le point de montage `mkdir /data`
+
+Monter le volume à partir du client avec `mount -t glusterfs node-1:volume-replica /data`
+
+
 ### Volume strippé
 
 ### Volume distribué-répliqué
